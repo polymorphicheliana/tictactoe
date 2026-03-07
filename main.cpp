@@ -13,7 +13,7 @@ void setup()
 {
     unsigned int counter = 0;
 
-    while(counter < cellCount) 
+    while(counter < cellCount)
     {
         board[counter] = State::Empty;
         
