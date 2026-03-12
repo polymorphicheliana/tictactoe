@@ -62,16 +62,8 @@ char readCharacter()
 unsigned int getMove(bool xturn)
 {
     char move;
-    char playerTurn;
+    char playerTurn = xturn? 'X' : 'O';
 
-    if(xturn)
-    {
-        playerTurn = 'X';    
-    }
-    else 
-    {
-        playerTurn = 'O';
-    }
     printf("Choose your move (%c) : ", playerTurn);
     move = readCharacter();
 //    printf("You entered : '%c'\n", move);
@@ -94,6 +86,40 @@ unsigned int getMove(bool xturn)
     }
 }
 
+bool winCondition(bool playerTurnX)
+{
+    const unsigned int winningCombosCount = 8;
+    const unsigned int winningCombos[winningCombosCount] = {7, 56, 73, 84, 146, 273, 292, 448};
+    unsigned int counter = 0;
+    unsigned int currentCombo = 0;
+    
+    State playerState = playerTurnX? State::X : State::O;
+
+    while(counter < cellCount)
+    {
+        if(board[counter] == playerState)
+        {
+            currentCombo = currentCombo + (1 << counter);
+        }
+
+        counter = counter + 1;
+    }
+
+    counter = 0;
+
+    while(counter < winningCombosCount)
+    {
+        if(winningCombos[counter] == (currentCombo & winningCombos[counter]))
+        {
+            return true;
+        }
+        
+        counter = counter + 1;
+    }
+
+    return false;
+}
+
 void gameLoop()
 {
     unsigned int counter = 0;
@@ -101,36 +127,34 @@ void gameLoop()
 
     while(counter < cellCount)
     {
-        
-        if(counter % 2 == 0)
-        {
-            xTurn = true;
-        }
-        else
-        {
-            xTurn = false;
-        }
+        xTurn = counter % 2 == 0;
+
         printBoard();
         unsigned int move = getMove(xTurn);
-        if(xTurn)
+
+        board[move] = xTurn? State::X : State::O;
+
+        if(winCondition(xTurn))
         {
-            board[move] = State::X;
+            printBoard();
+            printf("The Winner is %c\n", xTurn? 'X' : 'O');
+
+            return;
         }
-        else
-        {
-            board[move] = State::O;
-        }
+    
         counter = counter + 1;
     }
+
+    printBoard();
+    printf("The game came (aah) to a draw\n");
 }
+
+
+
 int main()
 {
     setup();
     gameLoop();
-//    board[5] = State::X;
-
-    
-
     return 0;
 }
 
